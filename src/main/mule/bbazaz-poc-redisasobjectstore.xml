@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite" xmlns:redis="http://www.mulesoft.org/schema/mule/redis"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd">
+	<redis:redis-config name="Redis_Redis" doc:name="Redis Redis" doc:id="55d773b4-e9f9-4a04-88f7-34c4dd048ed3" >
+		<redis:nonclustered-connection host="redis-16275.c114.us-east-1-4.ec2.cloud.redislabs.com" port="16275" password="ASsEhrKq6IHQUO2lVUItC2urP13EbXmi" />
+	</redis:redis-config>
+	<flow name="bbazaz-poc-redisasobjectstoreFlow" doc:id="9ffbe4c9-f41e-40c0-8c38-51727874f61f" >
+		<scheduler doc:name="Scheduler" doc:id="b23243d4-5730-4137-8b7d-f5e805fc6a25" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<set-payload value="#[uuid()]" doc:name="Generate UUID" doc:id="887c071c-5f9b-4d9d-93f0-84903d3c3846" />
+		<logger level="INFO" doc:name="Log UUID" doc:id="34ab78c8-46a9-496b-8358-64147a697558" message='#["Random UUID : " ++ payload as String ++ " generated at : " ++ now()]'/>
+		<redis:set doc:name="Save UUID" doc:id="3c2c3304-95ab-4c7e-b90e-86d2f284cad7" config-ref="Redis_Redis" key="uuid">
+		</redis:set>
+		<logger level="INFO" doc:name="LogAddition to Redis" doc:id="d7733693-18b0-4ad3-808d-f8c35745434d" message='#["Saved to Redis"]'/>
+		<redis:get doc:name="Get UUID" doc:id="fa0afa33-8c52-4063-8233-489fd588b44f" config-ref="Redis_Redis" key="uuid"/>
+		<logger level="INFO" doc:name="Log UUID" doc:id="c3e961d6-203e-47f9-b091-0ac8357e58b8" message='#["Retrieved UUID is : " ++ payload]'/>
+	</flow>
+</mule>
